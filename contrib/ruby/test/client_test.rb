@@ -533,7 +533,7 @@ class ClientTest < TrilogyTest
 
   def test_connection_error
     err = assert_raises Trilogy::BaseConnectionError do
-      new_tcp_client(username: "foo")
+      new_tcp_client(username: "foo", password: "foo")
     end
 
     assert_includes err.message, "Access denied for user 'foo'"
