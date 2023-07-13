@@ -71,6 +71,11 @@ typedef struct {
     size_t max_allowed_packet;
 } trilogy_sockopt_t;
 
+typedef struct trilogy_sockerr_t {
+    uint32_t number;
+    char *message;
+}
+
 typedef struct trilogy_sock_t {
     int (*connect_cb)(struct trilogy_sock_t *self);
     ssize_t (*read_cb)(struct trilogy_sock_t *self, void *buf, size_t nread);
@@ -81,6 +86,8 @@ typedef struct trilogy_sock_t {
     int (*fd_cb)(struct trilogy_sock_t *self);
 
     trilogy_sockopt_t opts;
+
+    trilogy_sockerr_t err;
 } trilogy_sock_t;
 
 static inline int trilogy_sock_connect(trilogy_sock_t *sock) { return sock->connect_cb(sock); }

@@ -18,12 +18,13 @@
     XX(TRILOGY_NULL_VALUE, -13)                                                                                        \
     XX(TRILOGY_INVALID_SEQUENCE_ID, -14)                                                                               \
     XX(TRILOGY_TYPE_OVERFLOW, -15)                                                                                     \
-    XX(TRILOGY_OPENSSL_ERR, -16) /* check ERR_get_error() */                                                           \
+    XX(TRILOGY_OPENSSL_ERR, -16) /* deprecated */                                                                      \
     XX(TRILOGY_UNSUPPORTED, -17)                                                                                       \
     XX(TRILOGY_DNS_ERR, -18)                                                                                           \
     XX(TRILOGY_AUTH_SWITCH, -19)                                                                                       \
     XX(TRILOGY_MAX_PACKET_EXCEEDED, -20)                                                                               \
-    XX(TRILOGY_UNKNOWN_TYPE, -21)
+    XX(TRILOGY_UNKNOWN_TYPE, -21)                                                                                      \
+    XX(TRILOGY_SSL_ERROR, -22)
 
 enum {
 #define XX(name, code) name = code,

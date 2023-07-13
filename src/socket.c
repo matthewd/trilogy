@@ -304,6 +304,25 @@ fail:
     return TRILOGY_ERR;
 }
 
+static void record_ssl_error(struct trilogy_sock *sock)
+{
+    uint32_t ssl_error = ERR_get_error();
+
+    char buf[256];
+    ERR_error_string_n(ssl_error, buf, sizeof(buf));
+
+    if (sock->err != NULL) {
+        free(sock->err->message);
+        free(sock->err);
+    }
+
+    trilogy_sockerr_t *err = malloc(sizeof(trilogy_sockerr_t));
+    err->number = ssl_error;
+    err->message = strdup(buf);
+
+    sock->err = err;
+}
+
 static ssize_t ssl_io_return(struct trilogy_sock *sock, ssize_t ret)
 {
     if (ret < 0) {
@@ -313,7 +332,10 @@ static ssize_t ssl_io_return(struct trilogy_sock *sock, ssize_t ret)
         } else if (rc == SSL_ERROR_SYSCALL && errno != 0) {
             return (ssize_t)TRILOGY_SYSERR;
         }
-        return (ssize_t)TRILOGY_OPENSSL_ERR;
+
+        record_ssl_error(sock);
+
+        return (ssize_t)TRILOGY_SSL_ERROR;
     }
     return ret;
 }
@@ -542,7 +564,8 @@ int trilogy_sock_upgrade_ssl(trilogy_sock_t *_sock)
     SSL_CTX *ctx = trilogy_ssl_ctx(&sock->base.opts);
 
     if (!ctx) {
-        return TRILOGY_OPENSSL_ERR;
+        record_ssl_error(sock);
+        return TRILOGY_SSL_ERROR;
     }
 
     sock->ssl = SSL_new(ctx);
@@ -619,9 +642,11 @@ int trilogy_sock_upgrade_ssl(trilogy_sock_t *_sock)
     return TRILOGY_OK;
 
 fail:
+    record_ssl_error(sock);
+
     SSL_free(sock->ssl);
     sock->ssl = NULL;
-    return TRILOGY_OPENSSL_ERR;
+    return TRILOGY_SSL_ERROR;
 }
 
 int trilogy_sock_discard(trilogy_sock_t *_sock)
